@@ -18,7 +18,8 @@ const {
  * @function getRandomQuestions
  * @param {Object} req - Express request object.
  * @param {Object} req.query - Query parameters from the request.
- * @param {string} req.query.amount - The number of questions requested. This parameter is optional.
+ * @param {string} [req.query.amount] - The number of questions requested. This parameter is optional.
+ * @param {string} [req.query.difficulty] - The difficulty level of the questions requested. This parameter is optional.
  * @param {Object} res - Express response object used to send back the response.
  * @returns {Promise<void>} Sends a JSON response with the requested random questions or an error message.
  *
@@ -29,23 +30,24 @@ const getRandomQuestions = async (req, res) => {
     let { amount, difficulty } = req.query;
     amount = parseInt(amount, 10);
 
-    //validation of amount
+    // Validate the amount of questions requested
     if (isNaN(amount) || amount < 1) {
       amount = 10;
     } else if (amount > 30) {
       amount = 30;
     }
-    //filter for difficulty level
+
+    // Filter the questions by difficulty level if provided
     const filter = {};
     if (difficulty) {
       filter.difficulty = difficulty;
     }
 
-    const randomQuestion = await getRandomQuestionsDB(amount, filter);
+    const randomQuestions = await getRandomQuestionsDB(amount, filter);
 
     res.status(200).json({
       message: "Random questions delivered successfully",
-      results: randomQuestion,
+      results: randomQuestions,
     });
   } catch (error) {
     res.status(500).json({
